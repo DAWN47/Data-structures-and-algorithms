@@ -11,7 +11,55 @@ typedef struct TNode {
 	struct TNode* Rchild;
 	data a;
 }TNode,*Tree;
+typedef struct sNode {
+	struct sNode* next;
+	Tree t;
+}sNode;
 
+typedef struct Stack {
+	sNode* base;
+	sNode* top;
+}*stack;
+
+stack createStack1() {
+	stack s = (stack)malloc(sizeof(struct Stack));
+	sNode* base = (sNode*)malloc(sizeof(sNode));
+	if (!s||!base)
+	{
+		printf("内存申请出错");
+		exit(0);
+	}
+	s->base = s->top = base;
+	return s;
+}
+void pressOne(stack s, Tree t) {
+	sNode* n = (sNode*)malloc(sizeof(sNode));
+	n->t = t;
+	n->next = s->top;
+	s->top = n; 
+}
+
+sNode* bounceOne(stack s) {
+	if (stackIsEmpty(s))
+	{
+		return NULL;
+	}
+	sNode* r = s->top;
+	s->top = s->top->next;
+	return r;
+}
+//判断栈是否为空
+int stackIsEmpty(stack s) {
+	if (s->base==s->top)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+//构造树
 Tree createTree() {
 	Tree t = (Tree)malloc(sizeof(TNode));
 	if (!t)
@@ -23,9 +71,14 @@ Tree createTree() {
 	t->Rchild = NULL;
 	return t;
 }
+//访问节点
 void vist(Tree t) {
-	printf("%c\n", t->a);
+	printf("%c\n", t->a.a);
 }
+void vist1(Tree t) {
+	printf("%c", t->a.a);
+}
+//先序遍历
 void traverseFirst(Tree t) {
 	if (t)
 	{
@@ -34,6 +87,32 @@ void traverseFirst(Tree t) {
 		traverseFirst(t->Rchild);
 	}
 }
+//非递归先序遍历
+void traverseFirstByStack(Tree t) {
+	stack s = createStack1();
+	while (t!=NULL)
+	{
+		vist(t);
+		if (t->Rchild)
+		{
+			pressOne(s, t->Rchild);
+		}
+		if (t->Lchild)
+		{
+			pressOne(s, t->Lchild);
+		}
+		sNode* tmp = bounceOne(s);
+		if (tmp == NULL)
+		{
+			t = NULL;
+		}
+		else
+		{
+			t = tmp->t;
+		}
+	}
+}
+//中序遍历
 void midOrderTraversal(Tree t) {
 	if (t)
 	{
@@ -42,6 +121,7 @@ void midOrderTraversal(Tree t) {
 		midOrderTraversal(t->Rchild);
 	}
 }
+//后序遍历
 void postOrderTraversal(Tree t) {
 	if (t)
 	{
@@ -50,7 +130,7 @@ void postOrderTraversal(Tree t) {
 		vist(t);
 	}
 }
-
+//建立新节点
 Tree createTNode() {
 	Tree t = (Tree)malloc(sizeof(TNode));
 	if (!t)
@@ -62,6 +142,7 @@ Tree createTNode() {
 	t->Rchild = NULL;
 	return t;
 }
+//先序构造树
 Tree constructTree(Tree t) {
 	char input;
 	scanf("%c", &input);
@@ -88,6 +169,7 @@ Tree constructTree(Tree t) {
 	}
 	return t;
 }
+//数的深度
 int higth(Tree t) {
 	int L = 0, R = 0;
 	if (t==NULL)
@@ -101,7 +183,7 @@ int higth(Tree t) {
 	}
 	return L > R ? L + 1 : R + 1;
 }
-
+//获取节点数量
 int getNodeNumber(Tree t) {
 	int L = 0, R = 0;
 	if (t==NULL)
@@ -115,6 +197,7 @@ int getNodeNumber(Tree t) {
 	}
 	return L + R + 1;
 }
+//获取叶子节点数量
 int getLeafNodes(Tree t) {
 	static int i = 0;
 	if (t==NULL)
@@ -134,6 +217,7 @@ int getLeafNodes(Tree t) {
 	}
 	return i;
 }
+//获取节点数量
 int getNodeNumber1(Tree t) {
 	static int i = 0;
 	if (t)
@@ -144,9 +228,6 @@ int getNodeNumber1(Tree t) {
 	}
 	return i;
 }
-typedef struct a {
-	int* a;
-}b, * a;
 
 int main() {
 	/*Tree t = createTree();
@@ -159,11 +240,8 @@ int main() {
 	t->Lchild->Lchild->a.a = 4;
 	postOrderTraversal(t);*/
 
-	/*Tree t = createTree();
+	Tree t = createTree();
 	constructTree(t);
-	traverseFirst(t);
-	
-	printf(" %d ", getLeafNodes(t));*/
-	printf("%ld", ~0x0000);
+	traverseFirstByStack(t);
 	return 0;
  }

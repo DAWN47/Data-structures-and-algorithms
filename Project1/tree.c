@@ -75,9 +75,6 @@ Tree createTree() {
 void vist(Tree t) {
 	printf("%c\n", t->a.a);
 }
-void vist1(Tree t) {
-	printf("%c", t->a.a);
-}
 //ÏÈĞò±éÀú
 void traverseFirst(Tree t) {
 	if (t)

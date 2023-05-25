@@ -13,6 +13,7 @@ typedef struct TNode {
 }TNode,*Tree;
 typedef struct sNode {
 	struct sNode* next;
+	int flag;
 	Tree t;
 }sNode;
 
@@ -35,6 +36,7 @@ stack createStack1() {
 void pressOne(stack s, Tree t) {
 	sNode* n = (sNode*)malloc(sizeof(sNode));
 	n->t = t;
+	n->flag = 0;
 	n->next = s->top;
 	s->top = n; 
 }
@@ -47,7 +49,15 @@ sNode* bounceOne(stack s) {
 	sNode* r = s->top;
 	s->top = s->top->next;
 	return r;
+} 
+sNode* getTopNode(stack s) {
+	if (stackIsEmpty(s))
+	{
+		return NULL;
+	}
+	return s->top;
 }
+
 //判断栈是否为空
 int stackIsEmpty(stack s) {
 	if (s->base==s->top)
@@ -106,6 +116,103 @@ void traverseFirstByStack(Tree t) {
 		else
 		{
 			t = tmp->t;
+		}
+	}
+}
+
+//非递归中序遍历
+void traverseMidByStack(Tree t) {
+	stack s = createStack1();
+	//先沿着左分支一直遍历下去，直至一一左节点为空再出栈访问父节点再到该父节点的右节点，
+	//若右节点为空则从栈中取出该父节点的父节点，将当前节点置为其右节点。
+	while (t != NULL||!stackIsEmpty(s))
+	{
+		if (t==NULL)
+		{
+			t = bounceOne(s)->t;
+			vist(t);
+			t = t->Rchild;
+			continue;
+		}
+		pressOne(s, t);  
+		if (t->Lchild)
+		{
+			t = t->Lchild;
+		}
+		else
+		{
+			sNode* tmp = bounceOne(s);
+			if (tmp == NULL)
+			{
+				t = NULL;
+
+			}
+			else
+			{
+				t = tmp->t;
+				vist(t);
+				t = t->Rchild;
+			}
+			
+		}
+	
+	}
+}
+
+void traverseMidByStack1(Tree t) {
+	stack s = createStack1();
+//教材版，比自己想的确实好。。。
+	while (t != NULL || !stackIsEmpty(s))
+	{
+		if (t)
+		{
+			pressOne(s,t);
+			t = t->Lchild;
+		}
+		else
+		{
+			t = bounceOne(s)->t;
+			vist(t);
+			t = t->Rchild;
+		}
+
+	}
+}
+int stackHasIt(stack s, Tree t) {
+	sNode* tmp = s->top;
+	while (tmp!=s->base )
+	{
+		if (tmp->t->a.a==t->a.a)
+		{
+			return 1;
+		}
+		tmp = tmp->next;
+	}
+	return 0;
+}
+//非递归后序遍历
+void traversePostByStack(Tree t) {
+	stack s = createStack1();
+	while (t!=NULL||!stackIsEmpty(s))
+	{
+		while (t!=NULL)
+		{
+			pressOne(s, t);
+			t = t->Lchild;
+		}
+		if (!stackIsEmpty(s,t))
+		{
+			if (getTopNode(s)->flag==0)
+			{
+				getTopNode(s)->flag = 1;
+				t = getTopNode(s)->t->Rchild;
+			}
+			else
+			{
+				t = bounceOne(s)->t;
+				vist(t);
+				t = NULL;
+			}
 		}
 	}
 }
@@ -226,6 +333,7 @@ int getNodeNumber1(Tree t) {
 	return i;
 }
 
+
 int main() {
 	/*Tree t = createTree();
 	t->a.a = 1;
@@ -239,6 +347,11 @@ int main() {
 
 	Tree t = createTree();
 	constructTree(t);
+	printf("\n--------------\n");
 	traverseFirstByStack(t);
+	printf("\n--------------\n");
+	traversePostByStack(t);
+	printf("\n--------------\n");
+	/*traversePostByStack(t);*/
 	return 0;
  }
